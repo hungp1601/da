@@ -1,0 +1,10 @@
+version: '3'
+services:
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: hung1601
+      MYSQL_DATABASE: demo_database
+      MYSQL_USER: hung1601
+      MYSQL_PASSWORD: hung1601
+    hostname: localhost
