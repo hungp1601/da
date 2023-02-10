@@ -19,7 +19,6 @@
           <th><input type="text" v-model="gender" /></th>
           <th><input type="text" v-model="birthday" /></th>
           <th><input type="text" v-model="hometown" /></th>
-
         </tr>
 
       </table>
@@ -43,10 +42,13 @@
 </template>
 
 <script>
+import useValidate from '@vuelidate/core'
+import { required } from '@vuelidate/validators'
 import axios from 'axios'
 export default {
   data() {
     return {
+      v$: useValidate(),
       id: "",
       name: "",
       email: "",
@@ -58,9 +60,20 @@ export default {
       greeting: ""
     };
   },
+  validations() {
+    return {
+      email: { required },
+      name: { required },
+    }
+  },
   methods: {
 
     async submitForm() {
+      this.v$.$validate() // checks all inputs
+      if (this.v$.$error) {
+        alert('Form failed validation')
+        return;
+      }
       try {
 
         const response = await axios.post(`http://localhost:3000/api/users`, {
@@ -107,14 +120,26 @@ export default {
 
     },
     async deleteUser(user) {
-      await axios.delete(`http://localhost:3000/api/users/${user.id}`, {
-        id: user.id
+
+      await axios.delete("http://localhost:3000/api/users/" + user._id, {
+        id: user._id
       })
         .catch(err => { alert(err) });
-      console.log(this.users);
-      this.users.filter(u => u.id !== user.id);
+      await this.getUsers();
+    },
+    async updateUser(user) {
+      await axios.put("http://localhost:3000/api/users/" + user._id, {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        birthday: user.birthday,
+        hometown: user.hometown,
+        gender: user.gender,
+        number: user.number,
+      })
+        .catch(err => { alert(err) });
+      await this.getUsers();
     }
-
   },
   created() {
     this.getUsers();
