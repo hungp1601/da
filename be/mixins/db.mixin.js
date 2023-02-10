@@ -1,9 +1,7 @@
 "use strict";
 
-const fs = require("fs");
-const mysql = require("mysql2");
 const DbService = require("moleculer-db");
-
+const SqlAdapter = require("moleculer-db-adapter-sequelize");
 /**
  * @typedef {import('moleculer').ServiceSchema} ServiceSchema Moleculer's Service Schema
  * @typedef {import('moleculer').Context} Context Moleculer's Context
@@ -15,7 +13,21 @@ module.exports = function (collection) {
 
 	/** @type {MoleculerDB & ServiceSchema} */
 	const schema = {
+		name: collection,
 		mixins: [DbService],
+		adapter: new SqlAdapter("demo_database", "hung1601", "hung1601", {
+			host: "localhost",
+			dialect: "mysql",
+
+			pool: {
+				max: 5,
+				min: 0,
+				idle: 10000,
+			},
+		}),
+		model: {
+			name: collection,
+		},
 
 		events: {
 			/**
@@ -63,30 +75,28 @@ module.exports = function (collection) {
 		},
 	};
 
-	if (process.env.MYSQL_URI) {
-		// MySQL adapter
-		const connection = mysql.createConnection(
-			"mysql://hung1601:hung1601@localhost:3000/demo_database"
-		);
+	// if (process.env.MYSQL_URI) {
+	// MySQL adapter
+	// const connection = mysql.createConnection(
 
-		schema.adapter = new DbService.MySQLAdapter(connection, {
-			tableName: collection,
-		});
-	} else if (process.env.NODE_ENV === "test") {
-		// NeDB memory adapter for testing
-		schema.adapter = new DbService.MemoryAdapter();
-	} else {
-		// NeDB file DB adapter
+	// );
 
-		// Create data folder
-		if (!fs.existsSync("./data")) {
-			fs.mkdirSync("./data");
-		}
+	// schema.adapter = new DbService.MySQLAdapter(connection, );
+	// } else if (process.env.NODE_ENV === "test") {
+	// 	// NeDB memory adapter for testing
+	// 	schema.adapter = new DbService.MemoryAdapter();
+	// } else {
+	// 	// NeDB file DB adapter
 
-		schema.adapter = new DbService.MemoryAdapter({
-			filename: `./data/${collection}.db`,
-		});
-	}
+	// 	// Create data folder
+	// 	if (!fs.existsSync("./data")) {
+	// 		fs.mkdirSync("./data");
+	// 	}
+
+	// 	schema.adapter = new DbService.MemoryAdapter({
+	// 		filename: `./data/${collection}.db`,
+	// 	});
+	// }
 
 	return schema;
 };

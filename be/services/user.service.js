@@ -139,6 +139,7 @@ module.exports = {
 		updateById: {
 			rest: "PUT /:id",
 			params: {
+				id: "string",
 				name: "string",
 				email: "string",
 				birthday: "string",
@@ -149,7 +150,12 @@ module.exports = {
 			/** @param {Context} ctx */
 			async handler(ctx) {
 				const doc = await this.adapter.updateById(ctx.params.id, {
-					$inc: { quantity: ctx.params.value },
+					name: ctx.params.name,
+					email: ctx.params.email,
+					birthday: ctx.params.birthday,
+					hometown: ctx.params.hometown,
+					gender: ctx.params.gender,
+					number: ctx.params.number,
 				});
 				const json = await this.transformDocuments(
 					ctx,
