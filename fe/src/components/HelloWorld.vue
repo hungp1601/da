@@ -1,6 +1,5 @@
 <template>
   <div>
-    {{ greeting }}
     <form @submit.prevent="submitForm">
       <table>
         <tr>
@@ -10,15 +9,16 @@
           <th>gender</th>
           <th>birthday</th>
           <th>hometown</th>
+
         </tr>
 
         <tr>
-          <th><input type="text" v-model="name" /></th>
-          <th><input type="email" v-model="email" /></th>
-          <th><input type="tel" v-model="number" /></th>
-          <th><input type="text" v-model="gender" /></th>
-          <th><input type="text" v-model="birthday" /></th>
-          <th><input type="text" v-model="hometown" /></th>
+          <th><input type="text" v-model="user.name" /></th>
+          <th><input type="email" v-model="user.email" /></th>
+          <th><input type="tel" v-model="user.number" /></th>
+          <th><input type="text" v-model="user.gender" /></th>
+          <th><input type="text" v-model="user.birthday" /></th>
+          <th><input type="text" v-model="user.hometown" /></th>
         </tr>
 
       </table>
@@ -42,104 +42,19 @@
 </template>
 
 <script>
-import useValidate from '@vuelidate/core'
-import { required } from '@vuelidate/validators'
-import axios from 'axios'
+import { mapState, mapActions, mapGetters } from 'vuex';
 export default {
-  data() {
-    return {
-      v$: useValidate(),
-      id: "",
-      name: "",
-      email: "",
-      number: "",
-      gender: "",
-      hometown: "",
-      birthday: "",
-      users: [],
-      greeting: ""
-    };
-  },
-  validations() {
-    return {
-      email: { required },
-      name: { required },
-    }
+  computed: {
+    ...mapGetters(["users"]),
+    ...mapState(['user'])
   },
   methods: {
-
-    async submitForm() {
-      this.v$.$validate() // checks all inputs
-      if (this.v$.$error) {
-        alert('Form failed validation')
-        return;
-      }
-      try {
-
-        const response = await axios.post(`http://localhost:3000/api/users`, {
-          name: this.name,
-          email: this.email,
-          birthday: this.birthday,
-          hometown: this.hometown,
-          gender: this.gender,
-          number: this.number,
-        })
-        this.users.push({
-          id: response.data.id,
-          name: response.data.name,
-          email: response.data.email,
-          number: response.data.number,
-          gender: response.data.gender,
-          birthday: response.data.birthday,
-          hometown: response.data.hometown,
-        });
-        this.id = "";
-        this.name = "";
-        this.email = "";
-        this.number = "";
-        this.gender = "";
-        this.hometown = "";
-        this.birthday = "";
-      }
-      catch (err) {
-        alert("Error: " + err);
-      }
-
-
-    },
-    async getUsers() {
-      try {
-        const response = await axios.get(`http://localhost:3000/api/users`)
-          .catch(err => { console.log(err) });
-        this.users = response.data.rows;
-
-      }
-      catch (err) {
-        alert("Error: " + err);
-      }
-
-    },
-    async deleteUser(user) {
-
-      await axios.delete("http://localhost:3000/api/users/" + user._id, {
-        id: user._id
-      })
-        .catch(err => { alert(err) });
-      await this.getUsers();
-    },
-    async updateUser(user) {
-      await axios.put("http://localhost:3000/api/users/" + user._id, {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        birthday: user.birthday,
-        hometown: user.hometown,
-        gender: user.gender,
-        number: user.number,
-      })
-        .catch(err => { alert(err) });
-      await this.getUsers();
-    }
+    ...mapActions([
+      'getUsers',
+      'submitForm',
+      'deleteUser',
+      'updateUser'
+    ]),
   },
   created() {
     this.getUsers();

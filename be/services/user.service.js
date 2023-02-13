@@ -1,6 +1,6 @@
 "use strict";
-
-const DbMixin = require("../mixins/db.mixin");
+const SequelizeAdapter = require("moleculer-db-adapter-sequelize");
+const Sequelize = require("sequelize");
 
 /**
  * @typedef {import('moleculer').ServiceSchema} ServiceSchema Moleculer's Service Schema
@@ -10,16 +10,29 @@ const DbMixin = require("../mixins/db.mixin");
 /** @type {ServiceSchema} */
 module.exports = {
 	name: "users",
-	// version: 1
+	adapter: new SequelizeAdapter({
+		username: "root",
+		password: "",
+		database: "test",
+		dialect: "mysql",
+	}),
 
-	/**
-	 * Mixins
-	 */
-	mixins: [DbMixin("users")],
-
-	/**
-	 * Settings
-	 */
+	model: {
+		name: "users",
+		define: {
+			_id: {
+				type: Sequelize.TEXT,
+				primaryKey: true,
+			},
+			name: Sequelize.TEXT,
+			email: Sequelize.TEXT,
+			birthday: Sequelize.TEXT,
+			hometown: Sequelize.TEXT,
+			gender: Sequelize.TEXT,
+			number: Sequelize.TEXT,
+		},
+		options: {},
+	},
 	settings: {
 		// Available fields in the responses
 		fields: [
@@ -59,7 +72,7 @@ module.exports = {
 		 */
 		getAllUsers: {
 			rest: "GET",
-			/** @param {Context} ctx */
+
 			async handler(ctx) {
 				const docs = await this.adapter.find({});
 				const json = await this.transformDocuments(
