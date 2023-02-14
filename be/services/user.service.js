@@ -1,6 +1,7 @@
 "use strict";
 const SequelizeAdapter = require("moleculer-db-adapter-sequelize");
 const Sequelize = require("sequelize");
+const DbService = require("moleculer-db");
 
 /**
  * @typedef {import('moleculer').ServiceSchema} ServiceSchema Moleculer's Service Schema
@@ -17,15 +18,25 @@ module.exports = {
 		dialect: "mysql",
 	}),
 
+	mixins: [DbService],
+
 	model: {
 		name: "users",
 		define: {
-			_id: {
-				type: Sequelize.TEXT,
+			id: {
+				type: Sequelize.INTEGER,
 				primaryKey: true,
+				autoIncrement: true,
 			},
-			name: Sequelize.TEXT,
-			email: Sequelize.TEXT,
+			name: {
+				type: Sequelize.TEXT,
+				allowNull: false,
+			},
+			email: {
+				type: Sequelize.STRING,
+				unique: true,
+				allowNull: false,
+			},
 			birthday: Sequelize.TEXT,
 			hometown: Sequelize.TEXT,
 			gender: Sequelize.TEXT,
@@ -36,7 +47,7 @@ module.exports = {
 	settings: {
 		// Available fields in the responses
 		fields: [
-			"_id",
+			"id",
 			"name",
 			"email",
 			"birthday",

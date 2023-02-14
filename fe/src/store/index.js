@@ -23,13 +23,19 @@ export default createStore({
   actions: {
     submitForm({ commit, state }) {
       axios
-        .post(`http://localhost:3000/api/users`, state.user)
+        .post(`http://localhost:3000/api/users`, {
+          name: state.user.name,
+          email: state.user.email,
+          number: state.user.number,
+          gender: state.user.gender,
+          birthday: state.user.birthday,
+          hometown: state.user.hometown,
+        })
         .then((response) => {
-          //console.log(response.data);
           commit("setUsers", [
             ...state.users,
             {
-              id: response.data._id,
+              id: response.data.id,
               name: response.data.name,
               email: response.data.email,
               number: response.data.number,
@@ -55,15 +61,14 @@ export default createStore({
         });
     },
     deleteUser({ commit, state }, user) {
-      console.log(user);
       axios
-        .delete(`http://localhost:3000/api/users/${user._id}`, {
-          id: user._id,
+        .delete(`http://localhost:3000/api/users/${user.id}`, {
+          id: user.id,
         })
         .then(() => {
           commit(
             "setUsers",
-            state.users.filter((u) => u._id !== user._id)
+            state.users.filter((u) => u.id !== user.id)
           );
         })
         .catch((error) => {
@@ -73,8 +78,8 @@ export default createStore({
     updateUser({ commit, state }, user) {
       console.log(user);
       axios
-        .put(`http://localhost:3000/api/users/${user._id}`, {
-          id: user._id,
+        .put(`http://localhost:3000/api/users/${user.id}`, {
+          id: user.id,
           name: user.name,
           email: user.email,
           birthday: user.birthday,
@@ -86,7 +91,7 @@ export default createStore({
           commit(
             "setUsers",
             state.users.map((u) => {
-              if (u._id === user._id) {
+              if (u.id === user.id) {
                 return user;
               }
               return u;
