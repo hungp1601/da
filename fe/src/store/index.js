@@ -91,10 +91,7 @@ export default createStore({
           commit(
             "setUsers",
             state.users.map((u) => {
-              if (u.id === user.id) {
-                return user;
-              }
-              return u;
+              return u.id === user.id ? user : u;
             })
           );
         })
